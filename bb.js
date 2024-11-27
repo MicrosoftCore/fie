@@ -80,11 +80,11 @@ function* createThunk(context) {
 }
 
 function* thunkify() {
-  yield* gens.apply(null, args)
+  yield* gens.apply(null, arguments)
 }
 
-function* gens(...args) {
-  yield step2.apply(null, yield gen1(...args))
+function* gens() {
+  yield step2.apply(null, yield gen1(...arguments))
 }
 
 function* gen1(...args) {
@@ -115,7 +115,7 @@ function* bb() {
 function* mm() {
   return function () {
     console.log(arguments)
-    co(thunkify, ...arguments).then(thunk=>{
+    co(thunkify, ...arguments, context).then(thunk=>{
     
     })
   }
