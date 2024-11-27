@@ -79,12 +79,27 @@ function* createThunk(context) {
   }];
 }
 
+function* thunkify() {
+  yield* gens.apply(null, args)
+}
+
+function* gens(...args) {
+  yield step2.apply(null, yield gen1(...args))
+}
+
+function* gen1(...args) {
+  return yield function (callback) {
+    return callback.apply(null, args)
+  }
+}
+
 function* bb() {
   // yield step1(context);
 
   // const thunk = yield* createThunk(context);
 
   // 使用抽象的 wrappedCallback 传递给 getFieModule
+  const func = yield mm
   yield getFieModule('somePackageName', function callback() {
     console.log(arguments);
     co(createThunk, context).then((thunk) => {
@@ -95,6 +110,15 @@ function* bb() {
       thunk.apply(null, arguments); // 这里将调用 co 的 thunkToPromise中的 resolve，因为第一个参数为null, 所以只剩下 mod, options被返回
     });
   });
+}
+
+function* mm() {
+  return function () {
+    console.log(arguments)
+    co(thunkify, ...arguments).then(thunk=>{
+    
+    })
+  }
 }
 
 // co(bb).then((result) => {
