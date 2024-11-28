@@ -79,17 +79,23 @@ function* createThunk(context) {
   }];
 }
 
-function* thunkify() {
+function* start() {
   yield* gens.apply(null, arguments)
 }
 
-function* gens() {
-  yield step2.apply(null, yield gen1(...arguments))
+function* apply(fn, args) {
+  return yield* fn.apply(null, args)
 }
 
-function* gen1(...args) {
-  return yield function (callback) {
-    return callback.apply(null, args)
+function* gens() {
+  yield apply(step2, yield* apply(thunkify, arguments))
+}
+
+function* thunkify(...args) {
+  return yield function thunk(callback) {
+    // returns an object or a promise
+    // automated script will handle it
+    return co.wrap(apply)(callback, args)
   }
 }
 
@@ -99,7 +105,8 @@ function* bb() {
   // const thunk = yield* createThunk(context);
 
   // 使用抽象的 wrappedCallback 传递给 getFieModule
-  const func = yield mm
+  const func = apply(mm, arguments)
+  // yield func
   yield getFieModule('somePackageName', function callback() {
     console.log(arguments);
     co(createThunk, context).then((thunk) => {
@@ -115,7 +122,7 @@ function* bb() {
 function* mm() {
   return function () {
     console.log(arguments)
-    co(thunkify, ...arguments, context).then(thunk=>{
+    co(start, ...arguments, context).then(thunk=>{
     
     })
   }
