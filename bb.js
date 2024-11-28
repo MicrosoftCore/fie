@@ -120,11 +120,8 @@ function* bb() {
 }
 
 function* mm() {
-  return function () {
-    console.log(arguments)
-    co(start, ...arguments, context).then(thunk=>{
-    
-    })
+  return async function () {
+    await co(start, ...arguments, context)
   }
 }
 
