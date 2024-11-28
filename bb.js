@@ -84,7 +84,13 @@ function* start() {
 }
 
 function* apply(fn, args) {
-  return yield* fn.apply(null, args)
+  try {
+    // handle it simply and assume that all results are yieldable
+    return yield* fn.apply(null, args)
+  } catch {
+    // it's also work will resolved promise status here, but it's better to reject the error if handled result properly
+    return Promise.resolve()
+  }
 }
 
 function* gens() {
