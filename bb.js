@@ -80,7 +80,7 @@ function* createThunk(context) {
 }
 
 function* start() {
-  yield* gens.apply(null, arguments)
+  yield* apply(gens, arguments)
 }
 
 function* apply(fn, args) {
