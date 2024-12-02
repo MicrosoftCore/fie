@@ -110,7 +110,7 @@ function options(modulePath, moduleName) {
       ['detail', 'trace', 'prune', 'fixBugVersions'].forEach(arg => args.push(arg))
     }
 
-    const _args = arg.reduce((iter, arg) => ({ ...iter, [arg]: true }), {})
+    const _args = args.reduce((iter, arg) => ({ ...iter, [arg]: true }), {})
     _args.root = path.resolve(modulePath, moduleName)
     resolve([_args])
   })
@@ -118,9 +118,9 @@ function options(modulePath, moduleName) {
 
 function* gens() {
   const args = yield* apply(thunkify, arguments)
-  const [_mod, { fieOptions }, { getFieModulesPath, tnpmInstall }]
+  const [_mod, { fieOptions }, { getFieModulesPath, tnpmInstall }] = args
   const modulePath = getFieModulesPath()
-  yield apply(tnpmInstall, yield* apply(options, [modulePath, fie options.moduleName]))
+  yield apply(tnpmInstall, yield* apply(options, [modulePath, fieOptions.moduleName]))
 }
 
 function* thunkify(...args) {
