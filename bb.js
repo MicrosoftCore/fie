@@ -84,17 +84,43 @@ function* start() {
 }
 
 function* apply(fn, args) {
+  let ret
+  try {
+    ret = fn.apply(null, args)
+  } catch (error) {
+    Promise.reject(error instanceof Error ? error : new Error(error))
+  }
   try {
     // handle it simply and assume that all results are yieldable
-    return yield* fn.apply(null, args)
-  } catch {
+    return yield* ret
+  } catch (err) {
     // it's also work will resolved promise status here, but it's better to reject the error if handled result properly
-    return Promise.resolve()
+    try {
+      return yield ret
+    } catch (err) {
+      return Promise.resolve(ret)
+    }
   }
 }
 
+function options(modulePath, moduleName) {
+  return new Promise((resolve) => {
+    const args = ['D']
+    if (process.env.BUILD_ENV !== 'cloud') {
+      ['detail', 'trace', 'prune', 'fixBugVersions'].forEach(arg => args.push(arg))
+    }
+
+    const _args = arg.reduce((iter, arg) => ({ ...iter, [arg]: true }), {})
+    _args.root = path.resolve(modulePath, moduleName)
+    resolve([_args])
+  })
+}
+
 function* gens() {
-  yield apply(step2, yield* apply(thunkify, arguments))
+  const args = yield* apply(thunkify, arguments)
+  const [_mod, { fieOptions }, { getFieModulesPath, tnpmInstall }]
+  const modulePath = getFieModulesPath()
+  yield apply(tnpmInstall, yield* apply(options, [modulePath, fie options.moduleName]))
 }
 
 function* thunkify(...args) {
