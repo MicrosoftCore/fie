@@ -81,6 +81,14 @@ function* createThunk(context) {
 
 function* start() {
   yield* apply(gens, arguments)
+  con.next()
+}
+
+// suspending coroutines event loop
+function* con() {
+  return new Promise(resolve => {
+    con.next = resolve
+  })
 }
 
 function* apply(fn, args) {
@@ -123,6 +131,8 @@ function* gens() {
   yield apply(tnpmInstall, yield* apply(options, [modulePath, fieOptions.moduleName]))
 }
 
+// You should be aware that thunk function do not support asynchronous task in lzd
+// Use thunk function with caution if you have strict requirements on the execution order of tasks
 function* thunkify(...args) {
   return yield function thunk(callback) {
     // returns an object or a promise
@@ -149,6 +159,7 @@ function* bb() {
       thunk.apply(null, arguments); // 这里将调用 co 的 thunkToPromise中的 resolve，因为第一个参数为null, 所以只剩下 mod, options被返回
     });
   });
+  yield con
 }
 
 function* mm() {
